@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Subdir vul find:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Subdir_vul_find_jar</output-path>
+    <root id="archive" name="Subdir vul find.jar">
+      <element id="module-output" name="Subdir vul find" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/kevinsawicki/http-request/6.0/http-request-6.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
