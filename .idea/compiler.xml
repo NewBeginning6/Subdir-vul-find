@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Subdir vul find" />
+        <module name="Subdir vul find-20230721" />
       </profile>
     </annotationProcessing>
   </component>

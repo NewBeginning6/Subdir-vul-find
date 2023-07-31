@@ -42,7 +42,7 @@ public class Http {
         if (str.indexOf("https")!=-1) {
             if (methods == "post") {
                 headers.put("Content-type", enctypeBody);
-                response = HttpRequest.post(str).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow);
+                response = HttpRequest.post(str).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow).connectTimeout(5000).readTimeout(10000);
                 //Accept all certificates
                 response.trustAllCerts();
                 //Accept all hostnames
@@ -50,14 +50,14 @@ public class Http {
 
             }
             if (methods == "head") {
-                response = HttpRequest.head(str).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow);
+                response = HttpRequest.head(str).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
                 //Accept all certificates
                 response.trustAllCerts();
                 //Accept all hostnames
                 response.trustAllHosts();
             }
             if (methods == "get") {
-                response = HttpRequest.get(str).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow);
+                response = HttpRequest.get(str).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
                 //Accept all certificates
                 response.trustAllCerts();
                 //Accept all hostnames
@@ -67,13 +67,13 @@ public class Http {
         else{
             if (methods == "post") {
                 headers.put("Content-type", enctypeBody);
-                response = HttpRequest.post(str).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow);
+                response = HttpRequest.post(str).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow).connectTimeout(5000).readTimeout(10000);
             }
             if (methods == "head") {
-                response = HttpRequest.head(str).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow);
+                response = HttpRequest.head(str).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
             }
             if (methods == "get") {
-                response = HttpRequest.get(str).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow);
+                response = HttpRequest.get(str).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
             }
         }
         code = response.code();
@@ -126,13 +126,13 @@ public class Http {
 
         if (methods == "post")
         {   headers.put("Content-type",enctypeBody);
-            response = HttpRequest.post(str).useProxy(host, port).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow);
+            response = HttpRequest.post(str).useProxy(host, port).headers(headers).trustAllHosts().trustAllCerts().send(dataBody).followRedirects(follow).connectTimeout(5000).readTimeout(10000);
         }
         if (methods == "head"){
-            response = HttpRequest.head(str).useProxy(host, port).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow);
+            response = HttpRequest.head(str).useProxy(host, port).headers(headers).trustAllCerts().trustAllHosts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
         }
         if(methods == "get"){
-            response = HttpRequest.get(str).useProxy(host, port).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow);
+            response = HttpRequest.get(str).useProxy(host, port).headers(headers).trustAllHosts().trustAllCerts().followRedirects(follow).connectTimeout(5000).readTimeout(10000);
         }
         code = response.code();
         body = response.body();

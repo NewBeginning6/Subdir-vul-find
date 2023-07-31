@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.UIManager.*;
 
 import static org.example.CheckTarget.CheckU;
 
@@ -25,12 +26,12 @@ public class Gui extends JFrame {
     private JMenuItem importTargetsMenuItem,importPathMenuItem,exportMenuItem,aboutMenuItem,httpMenuItem;
     private JPanel topPanel, westPanel, eastPanel;
     private JLabel targetsLabel, pathLabel,cookiesLabel,uaLabel,dataLabel,headLabel,countLabel;
-    private JButton runButton,stopButton,clearButton;
-    private JComboBox<String> threadBox,codeBox;
+    private JButton runButton,stopButton,clearButton,searchButton;
+    private JComboBox<String> threadBox,codeBox,searchBox;
     private JComboBox<String> enctypeBox;
-    private JTextArea targetsTextArea,headTextArea,cookiesTextArea,targetsPathTextArea;
+    private JTextArea targetsTextArea,headTextArea,cookiesTextArea,targetsPathTextArea,searchField;
     private JScrollPane targetsScroll,tableScroll,targetsPathScroll;
-    private JTable table;
+    private JTable table,newTable;
     private Vector<String> columnNames;
     private DefaultTableModel dataModel;
     private ButtonGroup requestsButtonGroup;
@@ -47,11 +48,24 @@ public class Gui extends JFrame {
 
     public Gui()
         {
+             //设置外观为 Nimbus 风格
+            try {
+                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                // 处理异常
+            }
+
             JFrame.setDefaultLookAndFeelDecorated(true);
-            this.setTitle("Subdir vul find by Xciny");    //设置显示窗口标题
+            this.setTitle("Subdir vul find v1.1 by Xciny");    //设置显示窗口标题
             this.setBounds(400,300,1317,814);
             // 屏幕中央
             setLocationRelativeTo(null);
+
 
 
             // 头部面板内容
@@ -82,7 +96,6 @@ public class Gui extends JFrame {
             topPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
 
-
             // 左部面板（西）
             westPanel = new JPanel();
 //            GridBagLayout gridBagLayout=new GridBagLayout();
@@ -92,11 +105,11 @@ public class Gui extends JFrame {
             westPanel.setLayout(new FlowLayout(FlowLayout.LEFT,10,10));
 
             // 左部面板组件
-            targetsLabel = new JLabel("targets:                                          ");
-            pathLabel = new JLabel("自定义Path：                                          ");
-            headLabel = new JLabel("自定义Header:                                       ");
-            cookiesLabel = new JLabel("自定义Cookies:");
-            uaLabel = new JLabel("自定义User-Agent:");
+            targetsLabel = new JLabel("targets:                                                                     ");
+            pathLabel = new JLabel("自定义Path：                                                                     ");
+            headLabel = new JLabel("自定义Header:                                                                  ");
+            cookiesLabel = new JLabel("自定义Cookies:                                                                     ");
+            uaLabel = new JLabel("自定义User-Agent:                                                                     ");
 
             runButton = new JButton("Run");
             runButton.setEnabled(true);
@@ -132,7 +145,7 @@ public class Gui extends JFrame {
             codeBox.addItem("401");
             codeBox.addItem("404");
             codeBox.addItem("500");
-            targetsTextArea = new JTextArea(8,55);
+            targetsTextArea = new JTextArea(6,55);
             targetsTextArea.addFocusListener(new DefaultTextarea("https://www.baidu.com\n" +
                     "https://www.baidu.com/js/demo.js\n" +
                     "https://www.baidu.com/js/js/demo.js\n" +
@@ -141,14 +154,10 @@ public class Gui extends JFrame {
 
             targetsPathTextArea = new JTextArea(4,55);
             targetsPathTextArea.addFocusListener(new DefaultTextarea("/swagger-ui.html\n" +
-                    "/actuator\n" +
-                    "/druid/index.html\n" +
-                    "/env\n" +
+                    "/actuator/swagger-ui.html\n" +
+                    "/swagger-resources\n" +
                     "/api-docs\n" +
-                    "/swagger/index.html\n" +
-                    "/login\n" +
-                    "/login.html\n" +
-                    "/gateway/actuator\n", targetsPathTextArea));
+                    "/swagger/index.html\n", targetsPathTextArea));
             targetsPathScroll = new JScrollPane(targetsPathTextArea);
 
             headTextArea = new JTextArea(2,55);
@@ -175,7 +184,7 @@ public class Gui extends JFrame {
             followBox = new JCheckBox("是否跟随302跳转");
             startpathBox = new JCheckBox("是否只请求targets");
 
-            dataLabel=new JLabel("post_data:");
+            dataLabel=new JLabel("post_data:                                                                     ");
             dataText = new JTextField("",55);
 
             dataText.setEditable(false);
@@ -228,6 +237,30 @@ public class Gui extends JFrame {
             westPanel.add(clearButton);
             westPanel.add(countLabel);
 
+            //新增搜索功能
+            searchBox = new JComboBox<String>();
+            searchBox.addItem("--请选择搜索列--");
+            searchBox.addItem("target");
+            searchBox.addItem("status");
+            searchBox.addItem("title");
+            searchBox.addItem("body");
+
+
+            // 创建搜索框和搜索按钮
+            searchField = new JTextArea(1,30);
+            searchButton = new JButton("筛选");
+            searchButton.setEnabled(true);
+            searchButton.setBorderPainted(true);
+
+
+
+            // 将搜索框和搜索按钮添加到 westPanel 中
+            westPanel.add(searchBox);
+            westPanel.add(searchField);
+            westPanel.add(searchButton);
+
+
+
             // 右部面板（东）
             eastPanel = new JPanel();
             eastPanel.setLayout(new BorderLayout(0, 0));
@@ -239,6 +272,8 @@ public class Gui extends JFrame {
             columnNames.add("title");
             columnNames.add("banner");
             columnNames.add("contentLength");
+
+
             // 创建表格模型
             dataModel = new DefaultTableModel(columnNames, 0);
             // 创建JTable表格组件
@@ -272,10 +307,13 @@ public class Gui extends JFrame {
             westPanel.setPreferredSize(new Dimension(655,510));
             eastPanel.setPreferredSize(new Dimension(645,510));
 
+
+
+
             //窗口显示
             setVisible(true);
             // 用户是否可随意改窗口大小
-//            setResizable(false);
+            setResizable(true);
             // 点击x直接结束当前程序
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -376,6 +414,234 @@ public class Gui extends JFrame {
                     dataModel.setRowCount(0);
                 }
             });
+
+            //自动缩放事件
+            this.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    Dimension size = getContentPane().getSize();
+                    westPanel.setPreferredSize(new Dimension(655*size.width/1301,510*size.height/755));
+                    eastPanel.setPreferredSize(new Dimension(645*size.width/1301,510*size.height/755));
+                }
+            });
+
+
+            // 搜索按钮点击事件
+            // 为搜索按钮添加事件监听器
+            searchButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // 获取搜索关键字
+                    String keyword = searchField.getText().trim();
+
+                    //创建新的表格模型
+                    DefaultTableModel newModel = new DefaultTableModel();
+                    newModel.setColumnIdentifiers(columnNames);
+
+
+                    // 遍历表格的每一行
+                    for (int i = 0; i < table.getRowCount(); i++) {
+                        boolean match = false;
+                        // 获取该行的数据
+                        String target = "";
+                        String status = "";
+                        String title = "";
+                        String banner = "";
+                        String contentLength = "";
+                        String body = "";
+
+                        Object targetValue = table.getValueAt(i, 0);
+                        if (targetValue != null) {
+                            target = targetValue.toString();
+                        }
+
+                        Object statusValue = table.getValueAt(i, 1);
+                        if (statusValue != null) {
+                            status = statusValue.toString();
+                        }
+
+                        Object titleValue = table.getValueAt(i, 2);
+                        if (titleValue != null) {
+                            title = titleValue.toString();
+                        }
+
+                        Object bannerValue = table.getValueAt(i, 3);
+                        if (bannerValue != null) {
+                            banner = bannerValue.toString();
+                        }
+
+                        Object contentLengthValue = table.getValueAt(i, 4);
+                        if (contentLengthValue != null) {
+                            contentLength = contentLengthValue.toString();
+                        }
+
+                        Object bodyValue = bodyData.get(target);
+                        if (bodyValue != null) {
+                            body = bodyValue.toString();
+                        }
+
+
+
+                        // 判断是否符合搜索条件
+                        Object enctypeBody = searchBox.getSelectedItem();
+                        if (enctypeBody.toString() == "target" && target.contains(keyword)) {
+                            match = true;
+                        }
+                        if (enctypeBody.toString() == "status" && status.contains(keyword)) {
+                            match = true;
+                        }
+                        if (enctypeBody.toString() == "title" && title.contains(keyword)) {
+                            match = true;
+                        }
+                        if (enctypeBody.toString() == "body" && body.contains(keyword)) {
+                            match = true;
+                        }
+
+                        // 如果符合条件，将该行设置为可见状态；否则隐藏该行
+                        if (match) {
+                            Object[] rowData = {table.getValueAt(i, 0), table.getValueAt(i, 1), table.getValueAt(i, 2), table.getValueAt(i, 3), table.getValueAt(i, 4)};
+                            newModel.addRow(rowData);
+                        }
+                    }
+
+                    JFrame newFrame = new JFrame();
+                    newFrame.setSize(645, 510);
+                    JTable newTable = new JTable(newModel);
+                    newTable.getColumnModel().getColumn(0).setPreferredWidth(180);
+                    newTable.getColumnModel().getColumn(1).setPreferredWidth(180);
+                    newTable.getColumnModel().getColumn(2).setPreferredWidth(180);
+                    newTable.getColumnModel().getColumn(3).setPreferredWidth(180);
+                    newTable.getColumnModel().getColumn(4).setPreferredWidth(180);
+                    newTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+
+                    // newTable 右键事件
+                    newTable.addMouseListener(new MouseAdapter() {
+                        public void mousePressed(MouseEvent e) {
+
+                            rightMenu = new JPopupMenu();
+                            // 复制目标地址
+                            JMenuItem copyMenItem = new JMenuItem();
+                            copyMenItem.setText("  复制目标地址  ");
+                            //设置快捷键
+//                    copyMenItem.setAccelerator(KeyStroke.getKeyStroke('C', InputEvent.CTRL_MASK));
+                            copyMenItem.addActionListener(new java.awt.event.ActionListener() {
+                                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                    // 获取系统剪切板
+                                    Clipboard clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
+                                    // 构建String类型
+                                    StringSelection selection = new StringSelection(targetUrl);
+                                    // 添加文本到系统剪切板
+                                    clipboard.setContents(selection,selection);
+                                }
+                            });
+
+                            // 使用默认浏览器打开
+                            JMenuItem browserMenItem = new JMenuItem();
+                            browserMenItem.setText("  使用默认浏览器打开  ");
+                            browserMenItem.addActionListener(new java.awt.event.ActionListener() {
+                                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                    //该操作需要做的事
+                                    try {
+                                        java.net.URI uri = java.net.URI.create(targetUrl);
+                                        // 获取当前系统桌面扩展
+                                        java.awt.Desktop dp = java.awt.Desktop.getDesktop();
+                                        // 判断系统桌面是否支持要执行的功能
+                                        if (dp.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                                            dp.browse(uri);
+                                            // 获取系统默认浏览器打开链接
+                                        }
+                                    } catch (java.lang.NullPointerException e1) {
+                                        // 此为uri为空时抛出异常
+                                        e1.printStackTrace();
+                                    } catch (java.io.IOException e1) {
+                                        // 此为无法获取系统默认浏览器
+                                        e1.printStackTrace();
+                                    }
+                                }
+                            });
+
+                            // 预览Body
+                            JMenuItem viewMenItem = new JMenuItem();
+                            viewMenItem.setText("  预览Body  ");
+                            viewMenItem.addActionListener(new java.awt.event.ActionListener() {
+                                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                    // 新建一个frame
+                                    JDialog viewBodyFrame = new JDialog();
+                                    viewBodyFrame.setBounds(795,350,500,500);
+                                    viewBodyFrame.setLayout(new FlowLayout(FlowLayout.LEFT,10,5));
+                                    // 设置未关闭该窗口无法操作其他窗口
+                                    viewBodyFrame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+                                    viewBodyFrame.setTitle(targetUrl);
+
+                                    JTextArea bodyTextArea= new JTextArea(bodyData.get(targetUrl));
+                                    JScrollPane bodyScroll = new JScrollPane(bodyTextArea);
+                                    bodyScroll.setPreferredSize(new Dimension(450, 430));
+                                    // 设置一直显示滚动条
+                                    bodyScroll.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+                                    viewBodyFrame.add(bodyScroll);
+                                    viewBodyFrame.setVisible(true);
+//
+//
+                                }
+                            });
+                            // 添加到右键菜单
+                            rightMenu.add(browserMenItem);
+                            rightMenu.add(copyMenItem);
+                            rightMenu.add(viewMenItem);
+
+                            // 右键显示菜单栏
+                            if (e.getButton() == java.awt.event.MouseEvent.BUTTON3) {
+                                //通过点击位置找到点击为表格中的行
+                                int focusedRowIndex = newTable.rowAtPoint(e.getPoint());
+                                if (focusedRowIndex == -1) {
+                                    return;
+                                }
+                                //将表格所选项设为当前右键点击的行
+                                newTable.setRowSelectionInterval(focusedRowIndex, focusedRowIndex);
+                                targetUrl = (String) newTable.getValueAt(focusedRowIndex,0);
+                                //弹出菜单
+                                rightMenu.show(newTable, e.getX(), e.getY());}
+
+                            // 双击默认浏览器打开
+                            if (e.getClickCount() == 2){
+                                int focusedRowIndex = newTable.rowAtPoint(e.getPoint());
+                                if (focusedRowIndex == -1) {
+                                    return;
+                                }
+                                newTable.setRowSelectionInterval(focusedRowIndex, focusedRowIndex);
+                                targetUrl = (String) newTable.getValueAt(focusedRowIndex,0);
+                                try {
+                                    java.net.URI uri = java.net.URI.create(targetUrl);
+                                    // 获取当前系统桌面扩展
+                                    java.awt.Desktop dp = java.awt.Desktop.getDesktop();
+                                    // 判断系统桌面是否支持要执行的功能
+                                    if (dp.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                                        dp.browse(uri);
+                                        // 获取系统默认浏览器打开链接
+                                    }
+                                } catch (java.lang.NullPointerException e1) {
+                                    // 此为uri为空时抛出异常
+                                    e1.printStackTrace();
+                                } catch (java.io.IOException e1) {
+                                    // 此为无法获取系统默认浏览器
+                                    e1.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+
+                    JScrollPane scrollPane = new JScrollPane(newTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                    newFrame.add(scrollPane);
+                    newFrame.validate();
+                    newTable.setAutoCreateRowSorter(true);
+                    // 将窗口显示在屏幕中央
+                    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                    newFrame.setLocation(dim.width/2-newFrame.getSize().width/2, dim.height/2-newFrame.getSize().height/2);
+                    newFrame.setVisible(true);
+                }
+            });
+
 
             // stop 按钮事件
             stopButton.addActionListener(new ActionListener() {
@@ -755,7 +1021,7 @@ public class Gui extends JFrame {
     class about implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
-            JOptionPane.showMessageDialog(null, "Subdir vul find\nVersion 1.0\nAuthor：@Xciny\nGithub: https://github.com/NewBeginning6/Subdir-vul-find\nCopyright 2022", "关于",JOptionPane.WARNING_MESSAGE);//弹框提示
+            JOptionPane.showMessageDialog(null, "Subdir vul find\nVersion 1.1\nAuthor：@Xciny\nGithub: https://github.com/NewBeginning6/Subdir-vul-find\nCopyright 2022", "关于",JOptionPane.WARNING_MESSAGE);//弹框提示
         }
     }
 
