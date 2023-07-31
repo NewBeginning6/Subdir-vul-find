@@ -63,6 +63,7 @@ public class Gui extends JFrame {
             JFrame.setDefaultLookAndFeelDecorated(true);
             this.setTitle("Subdir vul find v1.1 by Xciny");    //设置显示窗口标题
             this.setBounds(400,300,1317,814);
+            this.setLayout(new Layout());
             // 屏幕中央
             setLocationRelativeTo(null);
 
@@ -415,15 +416,6 @@ public class Gui extends JFrame {
                 }
             });
 
-            //自动缩放事件
-            this.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    Dimension size = getContentPane().getSize();
-                    westPanel.setPreferredSize(new Dimension(655*size.width/1301,510*size.height/755));
-                    eastPanel.setPreferredSize(new Dimension(645*size.width/1301,510*size.height/755));
-                }
-            });
 
 
             // 搜索按钮点击事件
@@ -1092,6 +1084,45 @@ public class Gui extends JFrame {
 
     }
 
+    //自动缩放
+    class Layout implements LayoutManager{//控件自适应窗口大小，需要实现layoutManager接口
 
+        @Override
+        public void addLayoutComponent(String name, Component comp) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void removeLayoutComponent(Component comp) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container parent) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container parent) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void layoutContainer(Container parent) {
+            // TODO Auto-generated method stub
+            Dimension newSize = getContentPane().getSize();
+            int newWestPanelWidth = (655 * newSize.width) / 1301;
+            int newWestPanelHeight = (760 * newSize.height) / 775;
+            int newEastPanelWidth = (645 * newSize.width) / 1301;
+            int newEastPanelHeight = (775 * newSize.height) / 775;
+            topPanel.setBounds(0, 0, newWestPanelWidth, 30);
+            westPanel.setBounds(0, 30, newWestPanelWidth, newWestPanelHeight);
+            eastPanel.setBounds(newWestPanelWidth, 0, newEastPanelWidth, newEastPanelHeight);
+        }
+    }
 }
 
